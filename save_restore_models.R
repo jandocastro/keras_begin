@@ -57,5 +57,21 @@ model <- create_model()
 model %>% summary()
 
 
+# Save the model ----------------------------------------------------------
+
+# Will utilize the HDF5 format (Hierarchical Data Format)
+# https://support.hdfgroup.org/HDF5/whatishdf5.html
+
+model %>% fit(train_images, train_labels, epochs = 5)
+
+model %>% save_model_hdf5('my_model.h5')
+
+# if only wanted weights could use:
+#model %>% save_model_weights_hdf5('my_model_weights.h5')
+
+# Restoring the model
+new_model <- load_model_hdf5('my_model.h5')
+new_model %>% summary()
+
 
 
