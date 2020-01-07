@@ -74,4 +74,107 @@ new_model <- load_model_hdf5('my_model.h5')
 new_model %>% summary()
 
 
+# Save checkpoints --------------------------------------------------------
+
+# Useful to save checkpoints: may not need to retrain model (early stopping),
+# pick up where you left off...
+
+# Only going to focus on saving and restoring weights: would need model def on restore
+
+checkpoint_dir <- "checkpoints"
+dir.create(checkpoint_dir, showWarnings = FALSE)  # nice
+
+filepath <- file.path(checkpoint_dir, "weights.{epoch:02d}-{val_loss:.2f}.hdf5")
+
+# Create checkpoint callback
+cp_callback <- callback_model_checkpoint(
+  filepath = filepath,
+  save_weights_only = TRUE,
+  verbose = 1
+)
+
+model <- create_model()
+
+model %>% fit(
+  train_images,
+  train_labels,
+  epochs = 10,
+  validation_data = list(test_images, test_labels),
+  callbacks = list(cp_callback)
+)
+
+list.files(checkpoint_dir)
+
+# Let's check: fresh untrained model, expect ~10% accuracy (10 classes)
+new_model <- create_model()
+
+score <- new_model %>% evaluate(test_images, test_labels)
+
+cat('Test loss: ', score$loss, '\n')
+cat('Test accuracy: ', score$acc, '\n')
+
+# Now let's load the pre-trained weights : note, needs same architecture (from our function)
+new_model %>% load_model_weights_hdf5(
+  file.path(checkpoint_dir, "weights.10-0.40.hdf5")
+)
+
+score <- new_model %>% evaluate(test_images, test_labels)
+
+cat('Test loss: ', score$loss, '\n')
+cat('Test accuracy: ', score$acc, '\n')
+
+
+# Save checkpoints: other options -----------------------------------------
+
+# Every nth epoch
+unlink(checkpoint_dir, recursive = TRUE)  # Delete the directory
+
+dir.create(checkpoint_dir)
+
+# New cp_callback
+cp_callback <- callback_model_checkpoint(
+  filepath = filepath,
+  save_weights_only = TRUE,
+  period = 5,
+  verbose = 1
+)
+
+model <- create_model()
+
+model %>% fit(
+  train_images,
+  train_labels,
+  epochs = 10,
+  validation_data = list(test_images, test_labels),
+  callbacks = list(cp_callback)
+)
+
+list.files(checkpoint_dir)
+
+
+# Or only best model using validation loss
+unlink(checkpoint_dir, recursive = TRUE)
+
+dir.create(checkpoint_dir)
+
+# New cp_callback
+cp_callback <- callback_model_checkpoint(
+  filepath = filepath,
+  save_weights_only = TRUE,
+  save_best_only = TRUE,
+  verbose = 1
+)
+
+model <- create_model()
+
+model %>% fit(
+  train_images,
+  train_labels,
+  epochs = 10,
+  validation_data = list(test_images, test_labels),
+  callbacks = list(cp_callback)
+)
+
+list.files(checkpoint_dir)
+
 
