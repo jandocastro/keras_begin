@@ -181,7 +181,7 @@ for (i in 1:25) {
 
 # Overfitting because train accuracy higher than test accuracy
 # Could use dropout, L2 regularization
-# Then maybe an additional layer or convulational layers?
+# Then maybe an additional layer or convolutional layers?
 
 
 
