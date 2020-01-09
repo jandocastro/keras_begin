@@ -31,6 +31,25 @@ test_ds <- make_csv_dataset(
   num_epochs = 1
 )
 
+# Look at an element of the data : each column is a tensor
+train_ds %>%
+  reticulate::as_iterator() %>%
+  reticulate::iter_next() %>%
+  reticulate::py_to_r()
+
+
+# Data processing ---------------------------------------------------------
+
+# Going to use tensorflow's built-in processing system: feature_spec
+
+# Define the spec - continuous data
+spec <- feature_spec(train_ds, survived ~ .)
+
+spec <- spec %>%
+  step_numeric_column(all_numeric())
+
+
+
 
 
 

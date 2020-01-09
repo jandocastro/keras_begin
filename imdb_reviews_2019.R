@@ -116,6 +116,7 @@ history <- model %>% fit(
   verbose = 1
 )
 
+plot(history)
 
 # Evaluate the model ------------------------------------------------------
 
